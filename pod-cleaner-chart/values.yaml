@@ -44,6 +44,13 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+vpa:
+  enabled: true
+  updateMode: "Auto" # Acceptable values: "Auto", "Initial", "Off"
+  minCpu: "100m"
+  minMemory: "50Mi"
+  maxCpu: "1"
+  maxMemory: "500Mi"
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
