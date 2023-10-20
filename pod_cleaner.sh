@@ -22,6 +22,15 @@ cleanup() {
 # Register the cleanup function for script exit
 trap cleanup EXIT SIGHUP SIGINT SIGQUIT SIGABRT SIGTERM
 
+#logging pods to be killed
+log_pods() {
+    local namespace=$1
+    echo "Logging pods in namespace: $namespace that are going to be cleaned"
+    kubectl get pods --namespace="$namespace" --field-selector=status.phase!=Running,status.phase!=Succeeded -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | while read -r pod_name; do
+        # Print it to the standard output.
+        echo "Cleaning pod: $pod_name in namespace: $namespace"
+    done
+}
 # Function to delete all pods in a namespace
 delete_pods_in_namespace() {
     local namespace=$1
