@@ -26,7 +26,7 @@ trap cleanup EXIT SIGHUP SIGINT SIGQUIT SIGABRT SIGTERM
 log_pods() {
     local namespace=$1
     echo "Logging pods in namespace: $namespace that are going to be cleaned"
-    kubectl get pods --namespace="$namespace" --field-selector=status.phase!=Running,status.phase!=Succeeded -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | while read -r pod_name; do
+    pods= `kubectl get pods --namespace="$namespace" --field-selector=status.phase!=Running,status.phase!=Succeeded -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'` | while read -r pod_name; do
         # Print it to the standard output.
         echo "Cleaning pod: $pod_name in namespace: $namespace"
     done
@@ -35,7 +35,7 @@ log_pods() {
 delete_pods_in_namespace() {
     local namespace=$1
     echo "Deleting all pods in namespace $namespace"
-    kubectl delete pods --all -n "$namespace"
+    kubectl delete pods $pods -n "$namespace"
 }
 
 # Retrieve all namespaces, excluding those that contain "kube-"
