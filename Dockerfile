@@ -1,18 +1,20 @@
-# Use an official Python runtime as the base image
-FROM python:3.8-slim
+# Use an official Debian image.
+FROM debian:bullseye-slim
 
-# Set the working directory in the container
-WORKDIR /app
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y curl ca-certificates bash && \
+    update-ca-certificates && \
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
+    apt-get remove --purge --auto-remove -y curl && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Copy the script into the container
+COPY pod_cleaner.sh /pod_cleaner.sh
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+# Give execution rights to the script
+RUN chmod +x /script.sh
 
-# Define environment variable
-# This is required for Python Kubernetes client to find the cluster configuration
-ENV KUBERNETES_SERVICE_HOST=kubernetes.default.svc
-
-# Run the Python script when the container launches
-CMD ["python", "pod_cleaner.py"]
+# Command to run the script
+CMD ["/pod_cleaner.sh"]
